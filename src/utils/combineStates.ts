@@ -1,6 +1,6 @@
 import { StatesType, QuerierState, QueryStateType } from '../types';
 
-const combineStates = (states: StatesType): QueryStateType => {
+export const combineStates = (states: StatesType): QueryStateType => {
   let successes = 0;
 
   for (let key in states) {
@@ -32,5 +32,3 @@ const combineStates = (states: StatesType): QueryStateType => {
     state: QuerierState.Pending
   };
 };
-
-export default combineStates;
