@@ -1,4 +1,4 @@
-class QuerierLogger {
+export class QuerierLogger {
   // tslint:disable-next-line
   private logs: Array<any> = [];
 
@@ -11,5 +11,3 @@ class QuerierLogger {
     }
   }
 }
-
-export default QuerierLogger;

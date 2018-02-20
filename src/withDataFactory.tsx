@@ -18,7 +18,7 @@ const getComponentDisplayName = (wrapped: React.ComponentType<any>) => {
   return wrapped.displayName || wrapped.name || 'Component';
 };
 
-const withDataFactory = <TProps, TInputQueries, TActionQueries>(
+export const withDataFactory = <TProps, TInputQueries, TActionQueries>(
   queries: {
     inputQueries?: WrappedInputQueries<TProps, TInputQueries> | null;
     actionQueries?: WrappedActionQueries<TActionQueries>;
@@ -196,5 +196,3 @@ const withDataFactory = <TProps, TInputQueries, TActionQueries>(
 
   return WithData;
 };
-
-export default withDataFactory;

@@ -11,7 +11,7 @@ export interface QuerierProviderProps {
   querier?: QuerierType;
 }
 
-class QuerierProvider extends React.Component<QuerierProviderProps, {}> {
+export class QuerierProvider extends React.Component<QuerierProviderProps, {}> {
   static childContextTypes = {
     querier: Querier
   };
@@ -33,5 +33,3 @@ class QuerierProvider extends React.Component<QuerierProviderProps, {}> {
     return this.props.children;
   }
 }
-
-export default QuerierProvider;

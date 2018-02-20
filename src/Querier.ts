@@ -1,4 +1,4 @@
-import QuerierLogger from './QuerierLogger';
+import { QuerierLogger } from './QuerierLogger';
 import {
   QuerierQueryDescriptor,
   QuerierState,
