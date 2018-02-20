@@ -8,10 +8,10 @@ function withData(dependencies) {
         queryDescriptorBuilders_1.inputQueryDescriptorsBuilder(dependencies.inputQueries);
     var actionQueriesDescriptor = actionQueries &&
         queryDescriptorBuilders_1.actionQueryDescriptorsBuilder(actionQueries);
-    return withDataFactory_1.default({
+    return withDataFactory_1.withDataFactory({
         inputQueries: inputQueriesDescriptor,
         actionQueries: actionQueriesDescriptor,
     });
 }
-exports.default = withData;
+exports.withData = withData;
 //# sourceMappingURL=withData.js.map

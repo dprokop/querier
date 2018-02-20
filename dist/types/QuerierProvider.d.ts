@@ -9,7 +9,7 @@ export interface QuerierProviderProps {
     children: JSX.Element;
     querier?: QuerierType;
 }
-declare class QuerierProvider extends React.Component<QuerierProviderProps, {}> {
+export declare class QuerierProvider extends React.Component<QuerierProviderProps, {}> {
     static childContextTypes: {
         querier: typeof Querier;
     };
@@ -18,4 +18,3 @@ declare class QuerierProvider extends React.Component<QuerierProviderProps, {}> 
     getChildContext(): QuerierProviderContext;
     render(): JSX.Element | (string & JSX.Element) | (number & JSX.Element) | (true & JSX.Element) | (false & JSX.Element) | (React.ReactElement<any> & JSX.Element) | ((string | number | boolean | any[] | React.ReactElement<any>)[] & JSX.Element) | (React.ReactPortal & JSX.Element);
 }
-export default QuerierProvider;

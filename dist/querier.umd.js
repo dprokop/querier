@@ -1815,6 +1815,64 @@ var QuerierProvider = /** @class */ (function (_super) {
 }(undefined));
 
 // tslint:disable-next-line
+var buildQueryKey = function (query, props) {
+    if (props) {
+        return query.name + ":" + JSON.stringify(props);
+    }
+    else {
+        return "" + query.name;
+    }
+};
+
+var inputQueryDescriptorsBuilder = function (inputQueries) {
+    var wrappedInputQueries = {};
+    var _loop_1 = function (inputQueryProp) {
+        if (inputQueryProp) {
+            var query_1 = inputQueries[inputQueryProp].query;
+            var wrappedQuery = function (props) { return query_1(props); };
+            var queryKey = buildQueryKey(query_1);
+            var wrappedQueryDescriptor = {};
+            wrappedQueryDescriptor[inputQueryProp] = {
+                query: wrappedQuery,
+                hot: !!inputQueries[inputQueryProp].hot,
+                resultActions: inputQueries[inputQueryProp].resultActions,
+                key: queryKey
+            };
+            wrappedInputQueries = Object.assign({}, wrappedInputQueries, wrappedQueryDescriptor);
+        }
+    };
+    for (var inputQueryProp in inputQueries) {
+        _loop_1(inputQueryProp);
+    }
+    return wrappedInputQueries;
+};
+var actionQueryDescriptorsBuilder = function (actionQueries) {
+    var wrappedActionQueries = {};
+    var _loop_2 = function (actionQueryProp) {
+        if (actionQueryProp) {
+            var query_2 = actionQueries[actionQueryProp].query;
+            // tslint:disable-next-line
+            var wrappedQuery = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                return query_2.apply(void 0, args);
+            };
+            var queryDescriptor = {};
+            queryDescriptor[actionQueryProp] = {
+                query: wrappedQuery,
+                hot: !!actionQueries[actionQueryProp].hot,
+                key: buildQueryKey(actionQueries[actionQueryProp].query)
+            };
+            wrappedActionQueries = Object.assign({}, wrappedActionQueries, queryDescriptor);
+        }
+    };
+    for (var actionQueryProp in actionQueries) {
+        _loop_2(actionQueryProp);
+    }
+    return wrappedActionQueries;
+};
 
 var factoryWithTypeCheckers = function(isValidElement, throwOnDirectAccess) {
   /* global Symbol */
@@ -2419,6 +2477,152 @@ if (process.env.NODE_ENV !== 'production') {
 }
 });
 
+// tslint:disable-next-line
+var getComponentDisplayName = function (wrapped) {
+    return wrapped.displayName || wrapped.name || 'Component';
+};
+var withDataFactory = function (queries) { return function (Component) {
+    var WithData = /** @class */ (function (_super) {
+        __extends(WithData, _super);
+        function WithData(props) {
+            var _this = _super.call(this, props) || this;
+            _this.querierSubscriptions = [];
+            _this.propsToQueryKeysMap = new Map();
+            _this.handleQuerierUpdate = _this.handleQuerierUpdate.bind(_this);
+            _this.initializePropsToQueryKeysMap();
+            return _this;
+        }
+        WithData.prototype.componentDidMount = function () {
+            this.fireInputQueries(this.props);
+        };
+        WithData.prototype.componentWillReceiveProps = function (nextProps) {
+            this.unsubscribeQuerier();
+            this.fireInputQueries(nextProps);
+        };
+        WithData.prototype.componentWillUnmount = function () {
+            this.unsubscribeQuerier();
+        };
+        WithData.prototype.initializePropsToQueryKeysMap = function () {
+            var inputQueries = queries.inputQueries;
+            if (inputQueries) {
+                for (var prop in inputQueries) {
+                    if (prop) {
+                        var queryKey = inputQueries[prop].key + ":" + JSON.stringify(this.props);
+                        this.propsToQueryKeysMap.set(prop, queryKey);
+                    }
+                }
+            }
+        };
+        WithData.prototype.fireInputQueries = function (props) {
+            var querier = this.context.querier;
+            var inputQueries = queries.inputQueries;
+            if (inputQueries) {
+                var _loop_1 = function (prop) {
+                    if (prop) {
+                        var query = function () { return inputQueries[prop].query(props); };
+                        var queryKey = inputQueries[prop].key + ":" + JSON.stringify(props);
+                        this_1.propsToQueryKeysMap.set(prop, queryKey);
+                        this_1.querierSubscriptions.push(querier.subscribe(queryKey, this_1.handleQuerierUpdate));
+                        querier.sendQuery({
+                            query: query,
+                            queryKey: queryKey,
+                            props: props,
+                            reason: getComponentDisplayName(Component),
+                            effects: inputQueries[prop].resultActions,
+                            hot: !!inputQueries[prop].hot,
+                        });
+                    }
+                };
+                var this_1 = this;
+                for (var prop in inputQueries) {
+                    _loop_1(prop);
+                }
+            }
+        };
+        WithData.prototype.unsubscribeQuerier = function () {
+            this.querierSubscriptions = this.querierSubscriptions.filter(function (unsubscribe) {
+                return unsubscribe();
+            });
+        };
+        WithData.prototype.handleQuerierUpdate = function (queryData) {
+            this.setState({});
+        };
+        WithData.prototype.buildComponentPropsFromResults = function () {
+            var _this = this;
+            var props = {
+                results: {},
+                states: {}
+            };
+            this.propsToQueryKeysMap.forEach(function (queryKey, prop) {
+                var queryStoreEntry = _this.context.querier.getEntry(queryKey);
+                var result = {};
+                var states = {};
+                result[prop] = queryStoreEntry && queryStoreEntry.result;
+                states[prop] = queryStoreEntry && queryStoreEntry.state;
+                props = {
+                    results: __assign({}, props.results, result),
+                    states: __assign({}, props.states, states)
+                };
+            });
+            // console.log(props);
+            return props;
+        };
+        WithData.prototype.getWrappedActionQueries = function () {
+            var _this = this;
+            var actionQueries = queries.actionQueries;
+            var querier = this.context.querier;
+            var wrappedActionQueries = {};
+            if (actionQueries) {
+                var _loop_2 = function (actionQueryProp) {
+                    if (actionQueryProp) {
+                        var wrappedActionQuery = {};
+                        wrappedActionQuery[actionQueryProp] = function (actionQueryParams) {
+                            var query = function () { return actionQueries[actionQueryProp].query(actionQueryParams); };
+                            var queryKey = actionQueries[actionQueryProp].key + ":" + JSON.stringify(actionQueryParams);
+                            _this.propsToQueryKeysMap.set(actionQueryProp, queryKey);
+                            querier.subscribe(queryKey, _this.handleQuerierUpdate);
+                            querier.sendQuery({
+                                query: query,
+                                queryKey: queryKey,
+                                hot: actionQueries[actionQueryProp].hot,
+                                props: actionQueryParams,
+                                reason: getComponentDisplayName(Component)
+                            });
+                        };
+                        wrappedActionQueries = __assign({}, wrappedActionQueries, wrappedActionQuery);
+                    }
+                };
+                for (var actionQueryProp in actionQueries) {
+                    _loop_2(actionQueryProp);
+                }
+            }
+            return wrappedActionQueries;
+        };
+        WithData.prototype.render = function () {
+            var _a = this.buildComponentPropsFromResults(), results = _a.results, states = _a.states;
+            return (undefined(Component, __assign({ results: results, actionQueries: this.getWrappedActionQueries(), states: states }, this.props)));
+        };
+        WithData.displayName = "WithData(" + getComponentDisplayName(Component) + ")";
+        WithData.contextTypes = {
+            querier: undefined
+        };
+        return WithData;
+    }(undefined));
+    return WithData;
+}; };
+
+function withData(dependencies) {
+    var actionQueries = dependencies.actionQueries;
+    var inputQueriesDescriptor = dependencies.inputQueries &&
+        inputQueryDescriptorsBuilder(dependencies.inputQueries);
+    var actionQueriesDescriptor = actionQueries &&
+        actionQueryDescriptorsBuilder(actionQueries);
+    return withDataFactory({
+        inputQueries: inputQueriesDescriptor,
+        actionQueries: actionQueriesDescriptor,
+    });
+}
+
 var Querier = /** @class */ (function () {
     // tslint:disable-next-line
     function Querier(store, dispatch) {
@@ -2528,6 +2732,9 @@ var Querier = /** @class */ (function () {
 }());
 
 exports['default'] = Querier;
+exports.QuerierLogger = QuerierLogger;
+exports.QuerierProvider = QuerierProvider;
+exports.withData = withData;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

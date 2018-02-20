@@ -15,5 +15,5 @@ var QuerierLogger = /** @class */ (function () {
     };
     return QuerierLogger;
 }());
-exports.default = QuerierLogger;
+exports.QuerierLogger = QuerierLogger;
 //# sourceMappingURL=QuerierLogger.js.map

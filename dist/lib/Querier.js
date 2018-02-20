@@ -51,7 +51,7 @@ var types_1 = require("./types");
 var Querier = /** @class */ (function () {
     // tslint:disable-next-line
     function Querier(store, dispatch) {
-        this.logger = new QuerierLogger_1.default();
+        this.logger = new QuerierLogger_1.QuerierLogger();
         this.store = store || {};
         this.listeners = new Map();
         this.reduxDispatch = dispatch;

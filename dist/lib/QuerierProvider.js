@@ -32,5 +32,5 @@ var QuerierProvider = /** @class */ (function (_super) {
     };
     return QuerierProvider;
 }(React.Component));
-exports.default = QuerierProvider;
+exports.QuerierProvider = QuerierProvider;
 //# sourceMappingURL=QuerierProvider.js.map

@@ -24,7 +24,7 @@ var React = require("react");
 var getComponentDisplayName = function (wrapped) {
     return wrapped.displayName || wrapped.name || 'Component';
 };
-var withDataFactory = function (queries) { return function (Component) {
+exports.withDataFactory = function (queries) { return function (Component) {
     var WithData = /** @class */ (function (_super) {
         __extends(WithData, _super);
         function WithData(props) {
@@ -153,5 +153,4 @@ var withDataFactory = function (queries) { return function (Component) {
     }(React.Component));
     return WithData;
 }; };
-exports.default = withDataFactory;
 //# sourceMappingURL=withDataFactory.js.map
