@@ -26,3 +26,4 @@ export * from './types';
 export * from './QuerierLogger';
 export * from './QuerierProvider';
 export * from './withData';
+export * from './utils/combineStates';

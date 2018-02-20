@@ -2623,6 +2623,36 @@ function withData(dependencies) {
     });
 }
 
+var combineStates = function (states) {
+    var successes = 0;
+    for (var key in states) {
+        if (key && states[key]) {
+            if (states[key].state === exports.QuerierState.Active) {
+                return {
+                    state: exports.QuerierState.Active
+                };
+            }
+            if (states[key].state === exports.QuerierState.Error) {
+                return {
+                    state: exports.QuerierState.Error,
+                    error: states[key].error
+                };
+            }
+            if (states[key].state === exports.QuerierState.Success) {
+                successes++;
+            }
+        }
+    }
+    if (successes === Object.keys(states).length) {
+        return {
+            state: exports.QuerierState.Success
+        };
+    }
+    return {
+        state: exports.QuerierState.Pending
+    };
+};
+
 var Querier = /** @class */ (function () {
     // tslint:disable-next-line
     function Querier(store, dispatch) {
@@ -2735,6 +2765,7 @@ exports['default'] = Querier;
 exports.QuerierLogger = QuerierLogger;
 exports.QuerierProvider = QuerierProvider;
 exports.withData = withData;
+exports.combineStates = combineStates;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

@@ -2618,6 +2618,36 @@ function withData(dependencies) {
     });
 }
 
+var combineStates = function (states) {
+    var successes = 0;
+    for (var key in states) {
+        if (key && states[key]) {
+            if (states[key].state === QuerierState.Active) {
+                return {
+                    state: QuerierState.Active
+                };
+            }
+            if (states[key].state === QuerierState.Error) {
+                return {
+                    state: QuerierState.Error,
+                    error: states[key].error
+                };
+            }
+            if (states[key].state === QuerierState.Success) {
+                successes++;
+            }
+        }
+    }
+    if (successes === Object.keys(states).length) {
+        return {
+            state: QuerierState.Success
+        };
+    }
+    return {
+        state: QuerierState.Pending
+    };
+};
+
 var Querier = /** @class */ (function () {
     // tslint:disable-next-line
     function Querier(store, dispatch) {
@@ -2726,6 +2756,6 @@ var Querier = /** @class */ (function () {
     return Querier;
 }());
 
-export { QuerierState, QuerierLogger, QuerierProvider, withData };
+export { QuerierState, QuerierLogger, QuerierProvider, withData, combineStates };
 export default Querier;
 //# sourceMappingURL=querier.es5.js.map

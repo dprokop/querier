@@ -160,4 +160,5 @@ __export(require("./types"));
 __export(require("./QuerierLogger"));
 __export(require("./QuerierProvider"));
 __export(require("./withData"));
+__export(require("./utils/combineStates"));
 //# sourceMappingURL=Querier.js.map
