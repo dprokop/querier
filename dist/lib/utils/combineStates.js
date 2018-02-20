@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var types_1 = require("../types");
-var combineStates = function (states) {
+exports.combineStates = function (states) {
     var successes = 0;
     for (var key in states) {
         if (key && states[key]) {
@@ -30,5 +30,4 @@ var combineStates = function (states) {
         state: types_1.QuerierState.Pending
     };
 };
-exports.default = combineStates;
 //# sourceMappingURL=combineStates.js.map
