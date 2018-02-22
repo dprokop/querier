@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import Querier from './Querier';
 import { QuerierType } from './types';
 
@@ -13,7 +14,7 @@ export interface QuerierProviderProps {
 
 export class QuerierProvider extends React.Component<QuerierProviderProps, {}> {
   static childContextTypes = {
-    querier: Querier
+    querier: PropTypes.object
   };
 
   private querier: QuerierType;

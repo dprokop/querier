@@ -122,7 +122,7 @@ var QuerierProvider = /** @class */ (function (_super) {
         return this.props.children;
     };
     QuerierProvider.childContextTypes = {
-        querier: Querier
+        querier: PropTypes.object
     };
     return QuerierProvider;
 }(React.Component));

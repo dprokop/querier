@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
+var PropTypes = require("prop-types");
 var Querier_1 = require("./Querier");
 var QuerierProvider = /** @class */ (function (_super) {
     __extends(QuerierProvider, _super);
@@ -28,7 +29,7 @@ var QuerierProvider = /** @class */ (function (_super) {
         return this.props.children;
     };
     QuerierProvider.childContextTypes = {
-        querier: Querier_1.default
+        querier: PropTypes.object
     };
     return QuerierProvider;
 }(React.Component));
