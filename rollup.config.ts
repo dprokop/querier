@@ -16,15 +16,25 @@ export default {
       name: camelCase(libraryName),
       format: 'umd',
       sourcemap: true,
+      exports: 'named',
+      globals: {
+        react: 'React',
+        'prop-types': 'PropTypes',
+      }
     },
     {
       file: pkg.module,
       format: 'es',
       sourcemap: true,
+      exports: 'named',
+      globals: {
+        react: 'React',
+        'prop-types': 'PropTypes',
+      }
     },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: [],
+  external: ['react', 'prop-types'],
   watch: {
     include: 'src/**',
   },
