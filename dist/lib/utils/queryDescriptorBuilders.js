@@ -7,7 +7,7 @@ exports.inputQueryDescriptorsBuilder = function (inputQueries) {
         if (inputQueryProp) {
             var query_1 = inputQueries[inputQueryProp].query;
             var wrappedQuery = function (props) { return query_1(props); };
-            var queryKey = buildQueryKey_1.default(query_1);
+            var queryKey = buildQueryKey_1.buildQueryKey(query_1);
             var wrappedQueryDescriptor = {};
             wrappedQueryDescriptor[inputQueryProp] = {
                 query: wrappedQuery,
@@ -40,7 +40,7 @@ exports.actionQueryDescriptorsBuilder = function (actionQueries) {
             queryDescriptor[actionQueryProp] = {
                 query: wrappedQuery,
                 hot: !!actionQueries[actionQueryProp].hot,
-                key: buildQueryKey_1.default(actionQueries[actionQueryProp].query)
+                key: buildQueryKey_1.buildQueryKey(actionQueries[actionQueryProp].query)
             };
             wrappedActionQueries = Object.assign({}, wrappedActionQueries, queryDescriptor);
         }

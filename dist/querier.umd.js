@@ -476,6 +476,7 @@ exports.QuerierLogger = QuerierLogger;
 exports.QuerierProvider = QuerierProvider;
 exports.withData = withData;
 exports.combineStates = combineStates;
+exports.buildQueryKey = buildQueryKey;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

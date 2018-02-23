@@ -469,6 +469,6 @@ var Querier = /** @class */ (function () {
     return Querier;
 }());
 
-export { QuerierState, QuerierLogger, QuerierProvider, withData, combineStates };
+export { QuerierState, QuerierLogger, QuerierProvider, withData, combineStates, buildQueryKey };
 export default Querier;
 //# sourceMappingURL=querier.es5.js.map

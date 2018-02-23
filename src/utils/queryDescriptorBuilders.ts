@@ -4,7 +4,7 @@ import {
   ActionQueriesDescriptor,
   WrappedActionQueries
 } from '../types';
-import buildQueryKey from './buildQueryKey';
+import { buildQueryKey } from './buildQueryKey';
 
 export const inputQueryDescriptorsBuilder = <TProps, TInputQueries>(
   inputQueries: InputQueriesDescriptor<TProps, TInputQueries>
