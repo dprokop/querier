@@ -2,13 +2,12 @@ import { StatesType, QuerierState, QueryStateType } from '../types';
 
 export const combineStates = (states: StatesType): QueryStateType => {
   let successes = 0;
+  let active = 0;
 
   for (let key in states) {
     if (key && states[key]) {
       if (states[key].state === QuerierState.Active) {
-        return {
-          state: QuerierState.Active
-        };
+        active++;
       }
       if (states[key].state === QuerierState.Error) {
         return {
@@ -20,6 +19,12 @@ export const combineStates = (states: StatesType): QueryStateType => {
         successes++;
       }
     }
+  }
+
+  if (active !== 0) {
+    return {
+      state: QuerierState.Active
+    };
   }
 
   if (successes === Object.keys(states).length) {
