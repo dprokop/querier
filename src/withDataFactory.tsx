@@ -12,6 +12,7 @@ import {
   WrappedInputQueries,
   InferableComponentEnhancer,
 } from './types';
+import invariant from 'invariant';
 
 // tslint:disable-next-line
 const getComponentDisplayName = (wrapped: React.ComponentType<any>) => {
@@ -37,10 +38,16 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(
     private querierSubscriptions: Array<() => void> = [];
     private propsToQueryKeysMap: Map<string, string> = new Map();
 
-    constructor(props: TProps) {
-      super(props);
+    constructor(props: TProps, context: QuerierProviderContext) {
+      super(props, context);
       this.handleQuerierUpdate = this.handleQuerierUpdate.bind(this);
       this.initializePropsToQueryKeysMap();
+
+      invariant(
+        context.querier,
+        'Querier is not available in the context. Make sure you have wrapped your root component ' +
+        'with QuerierProvider'
+      );
     }
 
     componentDidMount() {

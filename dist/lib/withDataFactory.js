@@ -20,6 +20,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var PropTypes = require("prop-types");
 var React = require("react");
+var invariant_1 = require("invariant");
 // tslint:disable-next-line
 var getComponentDisplayName = function (wrapped) {
     return wrapped.displayName || wrapped.name || 'Component';
@@ -27,12 +28,14 @@ var getComponentDisplayName = function (wrapped) {
 exports.withDataFactory = function (queries) { return function (Component) {
     var WithData = /** @class */ (function (_super) {
         __extends(WithData, _super);
-        function WithData(props) {
-            var _this = _super.call(this, props) || this;
+        function WithData(props, context) {
+            var _this = _super.call(this, props, context) || this;
             _this.querierSubscriptions = [];
             _this.propsToQueryKeysMap = new Map();
             _this.handleQuerierUpdate = _this.handleQuerierUpdate.bind(_this);
             _this.initializePropsToQueryKeysMap();
+            invariant_1.default(context.querier, 'Querier is not available in the context. Make sure you have wrapped your root component ' +
+                'with QuerierProvider');
             return _this;
         }
         WithData.prototype.componentDidMount = function () {
