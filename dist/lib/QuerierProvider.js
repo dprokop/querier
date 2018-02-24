@@ -17,7 +17,7 @@ var QuerierProvider = /** @class */ (function (_super) {
     __extends(QuerierProvider, _super);
     function QuerierProvider(props) {
         var _this = _super.call(this, props) || this;
-        _this.querier = props.querier || new Querier_1.default();
+        _this.querier = props.querier || new Querier_1.Querier();
         return _this;
     }
     QuerierProvider.prototype.getChildContext = function () {

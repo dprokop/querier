@@ -1,6 +1,6 @@
-import { QuerierQueryDescriptor, QuerierState, QuerierStoreType, QuerierType } from './types';
 import { Dispatch } from 'redux';
-declare class Querier implements QuerierType {
+import { QuerierQueryDescriptor, QuerierState, QuerierStoreType, QuerierType } from './types';
+export declare class Querier implements QuerierType {
     private store;
     private listeners;
     private logger;
@@ -21,10 +21,3 @@ declare class Querier implements QuerierType {
     subscribe(queryKey: string, listener: Function): () => void;
     private notify(queryKey);
 }
-export default Querier;
-export * from './types';
-export * from './QuerierLogger';
-export * from './QuerierProvider';
-export * from './withData';
-export * from './utils/combineStates';
-export * from './utils/buildQueryKey';

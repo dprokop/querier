@@ -42,9 +42,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
 Object.defineProperty(exports, "__esModule", { value: true });
 var QuerierLogger_1 = require("./QuerierLogger");
 var types_1 = require("./types");
@@ -155,11 +152,5 @@ var Querier = /** @class */ (function () {
     };
     return Querier;
 }());
-exports.default = Querier;
-__export(require("./types"));
-__export(require("./QuerierLogger"));
-__export(require("./QuerierProvider"));
-__export(require("./withData"));
-__export(require("./utils/combineStates"));
-__export(require("./utils/buildQueryKey"));
+exports.Querier = Querier;
 //# sourceMappingURL=Querier.js.map
