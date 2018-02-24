@@ -12,7 +12,7 @@
   ],
   "main": "dist/querier.umd.js",
   "module": "dist/querier.es5.js",
-  "typings": "dist/types/querier.d.ts",
+  "typings": "dist/types/index.d.ts",
   "files": [
     "dist"
   ],

@@ -1,13 +1,9 @@
-import { QuerierLogger } from './QuerierLogger';
-import {
-  QuerierQueryDescriptor,
-  QuerierState,
-  QuerierStoreType,
-  QuerierType
-} from './types';
 import { Dispatch } from 'redux';
 
-class Querier implements QuerierType {
+import { QuerierLogger } from './QuerierLogger';
+import { QuerierQueryDescriptor, QuerierState, QuerierStoreType, QuerierType } from './types';
+
+export class Querier implements QuerierType {
   private store: QuerierStoreType;
   private listeners: Map<string, Array<Function>>;
   private logger: QuerierLogger = new QuerierLogger();
@@ -142,12 +138,3 @@ class Querier implements QuerierType {
     }
   }
 }
-
-export default Querier;
-
-export * from './types';
-export * from './QuerierLogger';
-export * from './QuerierProvider';
-export * from './withData';
-export * from './utils/combineStates';
-export * from './utils/buildQueryKey';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import Querier from './Querier';
+import { Querier } from './Querier';
 import { QuerierType } from './types';
 
 export interface QuerierProviderContext {

@@ -9,7 +9,7 @@ const pkg = require('./package.json');
 const libraryName = 'Querier';
 
 export default {
-  input: `src/${libraryName}.ts`,
+  input: `src/index.ts`,
   output: [
     {
       file: pkg.main,
