@@ -1,17 +1,15 @@
 import {
-  InputQueriesDescriptor,
+  InputQueriesDefinition,
   WrappedInputQueries,
-  ActionQueriesDescriptor,
+  ActionQueriesDefinition,
   WrappedActionQueries
 } from '../types';
 import { buildQueryKey } from './buildQueryKey';
 
 export const inputQueryDescriptorsBuilder = <TProps, TInputQueries>(
-  inputQueries: InputQueriesDescriptor<TProps, TInputQueries>
+  inputQueries: InputQueriesDefinition<TProps, TInputQueries>
 ) => {
-  let wrappedInputQueries: Partial<
-    WrappedInputQueries<TProps, TInputQueries>
-  > = {};
+  let wrappedInputQueries: Partial<WrappedInputQueries<TProps, TInputQueries>> = {};
 
   for (let inputQueryProp in inputQueries) {
     if (inputQueryProp) {
@@ -19,21 +17,15 @@ export const inputQueryDescriptorsBuilder = <TProps, TInputQueries>(
       const wrappedQuery = (props: TProps) => query(props);
 
       const queryKey = buildQueryKey(query);
-      let wrappedQueryDescriptor: Partial<
-        WrappedInputQueries<TProps, TInputQueries>
-      > = {};
+      let wrappedQueryDescriptor: Partial<WrappedInputQueries<TProps, TInputQueries>> = {};
 
       wrappedQueryDescriptor[inputQueryProp] = {
         query: wrappedQuery,
         hot: !!inputQueries[inputQueryProp].hot,
-        resultActions: inputQueries[inputQueryProp].resultActions,
+        resultActions: inputQueries[inputQueryProp].resultActions || null,
         key: queryKey
       };
-      wrappedInputQueries = Object.assign(
-        {},
-        wrappedInputQueries,
-        wrappedQueryDescriptor
-      );
+      wrappedInputQueries = Object.assign({}, wrappedInputQueries, wrappedQueryDescriptor);
     }
   }
 
@@ -41,7 +33,7 @@ export const inputQueryDescriptorsBuilder = <TProps, TInputQueries>(
 };
 
 export const actionQueryDescriptorsBuilder = <TActionQueries>(
-  actionQueries: ActionQueriesDescriptor<TActionQueries>
+  actionQueries: ActionQueriesDefinition<TActionQueries>
 ) => {
   let wrappedActionQueries: Partial<WrappedActionQueries<TActionQueries>> = {};
 
@@ -59,11 +51,7 @@ export const actionQueryDescriptorsBuilder = <TActionQueries>(
         key: buildQueryKey(actionQueries[actionQueryProp].query)
       };
 
-      wrappedActionQueries = Object.assign(
-        {},
-        wrappedActionQueries,
-        queryDescriptor
-      );
+      wrappedActionQueries = Object.assign({}, wrappedActionQueries, queryDescriptor);
     }
   }
 

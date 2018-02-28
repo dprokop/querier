@@ -12,16 +12,18 @@ export type ActionQuery<TResult> = (...args: any[]) => Promise<TResult>;
 
 export type ResultActions<T> = Array<ActionFunction1<T, Action<T>>>;
 
-export type InputQueriesDescriptor<TProps, TInputQueries> = {
-  [TProp in keyof TInputQueries]: {
-    query: InputQuery<TProps, TInputQueries[TProp]>;
-    resultActions?: ResultActions<TInputQueries[TProp]>;
-    hot?: boolean;
-    $result?: TInputQueries[TProp];
-  }
+export type InputQueryDefinition<TProps, TResult> = {
+  query: InputQuery<TProps, TResult>;
+  resultActions?: ResultActions<TResult>;
+  hot?: boolean;
+  $result?: TResult;
 };
 
-export type ActionQueriesDescriptor<TActionQueries> = {
+export type InputQueriesDefinition<TProps, TInputQueries> = {
+  [TProp in keyof TInputQueries]: InputQueryDefinition<TProps, TInputQueries[TProp]>
+};
+
+export type ActionQueriesDefinition<TActionQueries> = {
   [TProp in keyof TActionQueries]: {
     query: ActionQuery<TActionQueries[TProp]>;
     resultActions?: ResultActions<TActionQueries[TProp]>;
@@ -30,19 +32,15 @@ export type ActionQueriesDescriptor<TActionQueries> = {
   }
 };
 
-export type DataDependenciesDescriptor<
-  TProps,
-  TInputQueries,
-  TActionQueries
-> = {
-  inputQueries?: InputQueriesDescriptor<TProps, TInputQueries>;
-  actionQueries?: ActionQueriesDescriptor<TActionQueries>;
+export type DataDependencyDefinition<TProps, TInputQueries, TActionQueries> = {
+  inputQueries?: InputQueriesDefinition<TProps, TInputQueries>;
+  actionQueries?: ActionQueriesDefinition<TActionQueries>;
 };
 
 export type WrappedInputQueries<TProps, TInputQueries> = {
   [TProp in keyof TInputQueries]: {
     query: InputQuery<TProps, TInputQueries[TProp]>;
-    resultActions?: ResultActions<TInputQueries[TProp]>;
+    resultActions: ResultActions<TInputQueries[TProp]> | null;
     hot: boolean;
     key: string;
   }
@@ -51,7 +49,7 @@ export type WrappedInputQueries<TProps, TInputQueries> = {
 export type WrappedActionQueries<TActionQueries> = {
   [TProp in keyof TActionQueries]: {
     query: ActionQuery<TActionQueries[TProp]>;
-    resultActions?: ResultActions<TActionQueries[TProp]>;
+    resultActions?: ResultActions<TActionQueries[TProp]> | null;
     hot: boolean;
     key: string;
   }
@@ -62,9 +60,7 @@ export type InputQueriesResults<TInputQueries> = {
 };
 
 export type ActionQueriesProps<TActionQueries> = {
-  [TProp in keyof TActionQueries]: (
-    ...args: any[]
-  ) => Promise<TActionQueries[TProp]>
+  [TProp in keyof TActionQueries]: (...args: any[]) => Promise<TActionQueries[TProp]>
 };
 
 export type InjectedStates<TInputQueries, TActionQueries> = {
@@ -72,10 +68,8 @@ export type InjectedStates<TInputQueries, TActionQueries> = {
 } &
   { [P in keyof TInputQueries]: QueryStateType };
 
-export type InjectedResults<
-  TInputQueries,
-  TActionQueries
-> = InputQueriesResults<TInputQueries> & InputQueriesResults<TActionQueries>;
+export type InjectedResults<TInputQueries, TActionQueries> = InputQueriesResults<TInputQueries> &
+  InputQueriesResults<TActionQueries>;
 
 export type WithDataProps<TProps, TInputQueries, TActionQueries> = {
   [P in keyof TProps]: TProps[P]
@@ -87,16 +81,10 @@ export type WithDataProps<TProps, TInputQueries, TActionQueries> = {
 
 // Inspired by react-redux
 // https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/react-redux/index.d.ts#L47
-export interface InferableComponentEnhancer<
-  TProps,
-  TInputQueries,
-  TActionQueries
-> {
-  (
-    component: ComponentType<
-      WithDataProps<TProps, TInputQueries, TActionQueries>
-    >
-  ): ComponentClass<TProps>;
+export interface InferableComponentEnhancer<TProps, TInputQueries, TActionQueries> {
+  (component: ComponentType<WithDataProps<TProps, TInputQueries, TActionQueries>>): ComponentClass<
+    TProps
+  >;
 }
 
 // Querier specific types
