@@ -95,7 +95,7 @@ export type QuerierQueryDescriptor<TResult> = {
   queryKey: string;
   hot?: boolean;
   props?: {};
-  effects?: ResultActions<TResult>;
+  effects?: ResultActions<TResult> | null;
   reason?: string;
 };
 

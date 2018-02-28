@@ -60,7 +60,7 @@ export class Querier implements QuerierType {
     }
   }
 
-  performQueryEffects<TResult>(result: TResult, effects?: ResultActions<TResult>) {
+  performQueryEffects<TResult>(result: TResult, effects?: ResultActions<TResult> | null) {
     if (effects) {
       if (!this.reduxDispatch) {
         throw new NoDispatcherError();
@@ -120,7 +120,7 @@ export class Querier implements QuerierType {
     }
   }
 
-  startQuery(key: string, props: {}, reason: string | undefined) {
+  startQuery(key: string, props?: {}, reason?: string) {
     this.updateQuery(key, {
       id: key,
       result: null,
