@@ -120,7 +120,7 @@ export class Querier implements QuerierType {
     }
   }
 
-  startQuery(key: string, props: any, reason: string | undefined) {
+  startQuery(key: string, props: {}, reason: string | undefined) {
     this.updateQuery(key, {
       id: key,
       result: null,
@@ -144,6 +144,7 @@ export class Querier implements QuerierType {
     this.logger.log('Query succeeded', { ...this.store[key] });
   }
 
+  // tslint:disable-next-line
   failQuery(key: string, error: any) {
     this.updateQuery(key, {
       result: null,
