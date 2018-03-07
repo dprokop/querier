@@ -139,8 +139,8 @@ describe('Querier', () => {
 
       unsubscribe();
 
-      expect(querier.getListenersByKey('key').length).toEqual(0);
-      expect(querier.getListeners().size).toEqual(1);
+      expect(querier.getListenersByKey('key')).toBeUndefined();
+      expect(querier.getListeners().size).toEqual(0);
     });
   });
 

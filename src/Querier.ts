@@ -98,6 +98,11 @@ export class Querier implements QuerierType {
           ..._listeners.slice(0, index),
           ..._listeners.slice(index + 1, _listeners.length)
         ]);
+
+        const updatedListeners = this.listeners.get(queryKey);
+        if (updatedListeners && updatedListeners.length === 0) {
+          this.listeners.delete(queryKey);
+        }
       }
     };
   }
