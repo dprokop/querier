@@ -14,17 +14,22 @@ const successQuery = async () => {
   const res = await request('/users/1');
   return res;
 };
-const storeMock: QuerierStoreType = {
-  queryKey: {
-    id: 'queryKey',
-    state: {
-      state: QuerierState.Active
-    },
-    result: null,
-    $reason: 'SomeComponent',
-    $props: {}
-  }
+
+const queryKey = 'key';
+const queryResult = users[1];
+const queryReason = 'SomeComponent';
+
+const createStoreMock = (
+  state: { state: QuerierState } = { state: QuerierState.Success },
+  // tslint:disable-next-line
+  $props: any = null,
+  id: string = queryKey,
+  result: { name: string } = queryResult,
+  $reason: string = queryReason
+): QuerierStoreType => {
+  return { key: { id, result, state, $props, $reason } };
 };
+const storeMock: QuerierStoreType = createStoreMock({ state: QuerierState.Active }, null, null);
 
 describe('Querier', () => {
   describe('utilities', () => {
@@ -32,7 +37,7 @@ describe('Querier', () => {
       const querier = new Querier(storeMock);
 
       expect(Object.keys(querier.getStore())).toHaveLength(1);
-      expect(querier.getEntry('queryKey')).toEqual(storeMock.queryKey);
+      expect(querier.getEntry(queryKey)).toEqual(storeMock[queryKey]);
       expect(querier.getEntry('queryKeyThatDoesNotExist')).toBeNull();
     });
   });
@@ -50,10 +55,7 @@ describe('Querier', () => {
 
   describe('query mutations', () => {
     let querier = new Querier();
-    const queryKey = 'key';
     const queryProps = { a: 1 };
-    const queryReason = 'SomeComponent';
-    const queryResult = { data: 'Yay!' };
     const queryError = new Error('Nay:/');
 
     afterEach(() => {
@@ -145,103 +147,57 @@ describe('Querier', () => {
   });
 
   describe('sending query', () => {
-    const queryKey = 'key';
-    const queryResult = users[1];
     describe('cache', () => {
-      it('serves from cache if query result is available', async () => {
-        const querySpy = jest.fn();
-        const listenerSpy = jest.fn();
-        const spiedQuery = async () => {
-          querySpy();
-          await successQuery();
-        };
+      let querySpy;
+      let listenerSpy;
+      let spiedQuery;
 
-        const store: QuerierStoreType = {
-          key: {
-            id: queryKey,
-            result: queryResult,
-            state: { state: QuerierState.Success },
-            $props: null,
-            $reason: 'SomeComponent'
-          }
-        };
-
-        const querier = new Querier(store);
-        querier.subscribe(queryKey, listenerSpy);
-
-        expect(listenerSpy).not.toBeCalled();
-
-        querier.sendQuery({
-          query: spiedQuery,
-          queryKey: queryKey
-        });
-
-        expect(querySpy).not.toBeCalled();
-        expect(listenerSpy).toBeCalledWith({
-          id: queryKey,
-          result: queryResult,
-          state: { state: QuerierState.Success },
-          $props: null,
-          $reason: 'SomeComponent'
-        });
-      });
-
-      it('serves from cache if query is active', () => {
-        const querySpy = jest.fn();
-        const listenerSpy = jest.fn();
-        const spiedQuery = async () => {
-          querySpy();
-          await successQuery();
-        };
-
-        const store: QuerierStoreType = {
-          key: {
-            id: queryKey,
-            result: queryResult,
-            state: { state: QuerierState.Active },
-            $props: null,
-            $reason: 'SomeComponent'
-          }
-        };
-
-        const querier = new Querier(store);
-
-        querier.subscribe(queryKey, listenerSpy);
-
-        expect(listenerSpy).not.toBeCalled();
-
-        querier.sendQuery({
-          query: spiedQuery,
-          queryKey: queryKey
-        });
-
-        expect(querySpy).not.toBeCalled();
-        expect(listenerSpy).toBeCalledWith({
-          id: queryKey,
-          result: queryResult,
-          state: { state: QuerierState.Active },
-          $props: null,
-          $reason: 'SomeComponent'
-        });
-      });
-
-      it('ignores cache if query is set to hot', async () => {
-        const querySpy = jest.fn();
-        const queryReason = 'Some Component';
-        const listenerSpy = jest.fn();
-        const spiedQuery = async () => {
+      beforeEach(() => {
+        querySpy = jest.fn();
+        listenerSpy = jest.fn();
+        spiedQuery = async () => {
           querySpy();
           return await successQuery();
         };
-        const store: QuerierStoreType = {
-          key: {
-            id: queryKey,
-            result: queryResult,
-            state: { state: QuerierState.Success },
-            $props: null,
-            $reason: queryReason
-          }
-        };
+      });
+
+      it('serves from cache if query result is available', async () => {
+        const store: QuerierStoreType = createStoreMock();
+
+        const querier = new Querier(store);
+        querier.subscribe(queryKey, listenerSpy);
+
+        expect(listenerSpy).not.toBeCalled();
+
+        querier.sendQuery({
+          query: spiedQuery,
+          queryKey: queryKey
+        });
+
+        expect(querySpy).not.toBeCalled();
+        expect(listenerSpy).toBeCalledWith(store[queryKey]);
+      });
+
+      it('serves from cache if query is active', () => {
+        const store: QuerierStoreType = createStoreMock({ state: QuerierState.Active });
+
+        const querier = new Querier(store);
+
+        querier.subscribe(queryKey, listenerSpy);
+
+        expect(listenerSpy).not.toBeCalled();
+
+        querier.sendQuery({
+          query: spiedQuery,
+          queryKey: queryKey
+        });
+
+        expect(querySpy).not.toBeCalled();
+        expect(listenerSpy).toBeCalledWith(store[queryKey]);
+      });
+
+      it('ignores cache if query is set to hot', async () => {
+        const store: QuerierStoreType = createStoreMock();
         const querier = new Querier(store);
         querier.subscribe(queryKey, listenerSpy);
 
@@ -276,20 +232,11 @@ describe('Querier', () => {
     describe('flow', () => {
       it('executes passed query', async () => {
         const querySpy = jest.fn();
-        const queryReason = 'Some Component';
         const spiedQuery = async () => {
           querySpy();
           return await successQuery();
         };
-        const store: QuerierStoreType = {
-          key: {
-            id: queryKey,
-            result: queryResult,
-            state: { state: QuerierState.Success },
-            $props: null,
-            $reason: queryReason
-          }
-        };
+        const store: QuerierStoreType = createStoreMock();
         const querier = new Querier(store);
 
         expect(querySpy).not.toBeCalled();
@@ -306,21 +253,12 @@ describe('Querier', () => {
 
       it('performs successQuery mutation on query sucess', async () => {
         const querySpy = jest.fn();
-        const queryReason = 'Some Component';
 
         const spiedQuery = async () => {
           querySpy();
           return await successQuery();
         };
-        const store: QuerierStoreType = {
-          key: {
-            id: queryKey,
-            result: queryResult,
-            state: { state: QuerierState.Success },
-            $props: null,
-            $reason: queryReason
-          }
-        };
+        const store: QuerierStoreType = createStoreMock();
         const querier = new Querier(store);
 
         await querier.sendQuery({
@@ -342,21 +280,12 @@ describe('Querier', () => {
 
       it('performs failQuery mutation on query failure', async () => {
         const querySpy = jest.fn();
-        const queryReason = 'Some Component';
 
         const spiedQuery = async () => {
           querySpy();
           return await failQuery();
         };
-        const store: QuerierStoreType = {
-          key: {
-            id: queryKey,
-            result: queryResult,
-            state: { state: QuerierState.Success },
-            $props: null,
-            $reason: queryReason
-          }
-        };
+        const store: QuerierStoreType = createStoreMock();
         const querier = new Querier(store);
 
         await querier.sendQuery({
@@ -382,7 +311,6 @@ describe('Querier', () => {
         payload
       };
     };
-    const queryResult = users[1];
 
     it('performs query effects on query success', async () => {
       const dispatchSpy = jest.fn();
@@ -391,8 +319,8 @@ describe('Querier', () => {
 
       await querier.sendQuery({
         query: successQuery,
-        queryKey: 'queryKey',
-        reason: 'queryReason',
+        queryKey: queryKey,
+        reason: queryReason,
         effects: [actionCreatorMock]
       });
 
@@ -406,14 +334,14 @@ describe('Querier', () => {
         await expect(
           querier.sendQuery({
             query: successQuery,
-            queryKey: 'queryKey',
-            reason: 'queryReason',
+            queryKey: queryKey,
+            reason: queryReason,
             effects: [actionCreatorMock]
           })
         ).rejects.toEqual(new NoDispatcherError());
 
-        expect(querier.getEntry('queryKey')).toHaveProperty('state.error', new NoDispatcherError());
-        expect(querier.getEntry('queryKey')).toHaveProperty('state.state', QuerierState.Error);
+        expect(querier.getEntry(queryKey)).toHaveProperty('state.error', new NoDispatcherError());
+        expect(querier.getEntry(queryKey)).toHaveProperty('state.state', QuerierState.Error);
       });
     });
   });
