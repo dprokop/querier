@@ -1,22 +1,27 @@
 import { combineStates } from '../../src/utils/combineStates';
 import { StatesType, QuerierState } from '../../src/types';
+import { QueryStateType } from '../../src';
+
+const createStateTypes = (stateTypes: Array<QuerierState>): StatesType => {
+  let result = {};
+  stateTypes.forEach((stateType: QuerierState, key) => {
+    result[`props${key}`] = {
+      state: QuerierState[QuerierState[stateType]],
+      error: stateType === QuerierState.Error ? 'Query failed' : null
+    };
+  });
+
+  return result;
+};
 
 describe('Utils', () => {
   describe('combineStates', () => {
-
     it('returns error state if any error available', () => {
-      const states: StatesType = {
-        'prop1': {
-          state: QuerierState.Active
-        },
-        'prop2': {
-          state: QuerierState.Success
-        },
-        'prop3': {
-          state: QuerierState.Error,
-          error: 'Query failed'
-        },
-      };
+      const states: StatesType = createStateTypes([
+        QuerierState.Active,
+        QuerierState.Success,
+        QuerierState.Error
+      ]);
 
       expect(combineStates(states)).toEqual({
         state: QuerierState.Error,
@@ -25,35 +30,22 @@ describe('Utils', () => {
     });
 
     it('returns active state if no error and any active state available', () => {
-      const states: StatesType = {
-        'prop1': {
-          state: QuerierState.Active
-        },
-        'prop2': {
-          state: QuerierState.Success
-        },
-        'prop3': {
-          state: QuerierState.Success,
-        },
-      };
-
+      const states: StatesType = createStateTypes([
+        QuerierState.Active,
+        QuerierState.Success,
+        QuerierState.Success
+      ]);
       expect(combineStates(states)).toEqual({
-        state: QuerierState.Active,
+        state: QuerierState.Active
       });
     });
 
     it('returns success state all states are success', () => {
-      const states: StatesType = {
-        'prop1': {
-          state: QuerierState.Success
-        },
-        'prop2': {
-          state: QuerierState.Success
-        },
-        'prop3': {
-          state: QuerierState.Success
-        },
-      };
+      const states: StatesType = createStateTypes([
+        QuerierState.Success,
+        QuerierState.Success,
+        QuerierState.Success
+      ]);
 
       expect(combineStates(states)).toEqual({
         state: QuerierState.Success
@@ -61,22 +53,15 @@ describe('Utils', () => {
     });
 
     it('returns pending state all states are pending', () => {
-      const states: StatesType = {
-        'prop1': {
-          state: QuerierState.Pending
-        },
-        'prop2': {
-          state: QuerierState.Pending
-        },
-        'prop3': {
-          state: QuerierState.Pending
-        },
-      };
+      const states: StatesType = createStateTypes([
+        QuerierState.Pending,
+        QuerierState.Pending,
+        QuerierState.Pending
+      ]);
 
       expect(combineStates(states)).toEqual({
-        state: QuerierState.Pending,
+        state: QuerierState.Pending
       });
     });
-
   });
 });
