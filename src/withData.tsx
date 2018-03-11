@@ -3,10 +3,10 @@ import {
   inputQueryDescriptorsBuilder
 } from './utils/queryDescriptorBuilders';
 import { withDataFactory } from './withDataFactory';
-import { DataDependenciesDescriptor, InferableComponentEnhancer } from './types';
+import { DataDependencyDefinition, InferableComponentEnhancer } from './types';
 
 export function withData<TProps, TInputQueries, TActionQueries>(
-  dependencies: DataDependenciesDescriptor<TProps, TInputQueries, TActionQueries>
+  dependencies: DataDependencyDefinition<TProps, TInputQueries, TActionQueries>
 ): InferableComponentEnhancer<TProps, TInputQueries, TActionQueries> {
   const { actionQueries } = dependencies;
 

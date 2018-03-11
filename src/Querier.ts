@@ -1,7 +1,23 @@
 import { Dispatch } from 'redux';
 
 import { QuerierLogger } from './QuerierLogger';
-import { QuerierQueryDescriptor, QuerierState, QuerierStoreType, QuerierType } from './types';
+import {
+  QuerierQueryDescriptor,
+  QuerierState,
+  QuerierStoreType,
+  QuerierType,
+  QueryStateType,
+  QuerierStateEntry
+} from './types';
+import { ResultActions } from '.';
+
+export class NoDispatcherError extends Error {
+  constructor() {
+    super();
+    this.name = 'NoDispatcherError';
+    this.message = 'Cannot perform query effects. Querier initialised without dispatcher';
+  }
+}
 
 export class Querier implements QuerierType {
   private store: QuerierStoreType;
@@ -9,8 +25,7 @@ export class Querier implements QuerierType {
   private logger: QuerierLogger = new QuerierLogger();
   private reduxDispatch: Dispatch<{}> | undefined;
 
-  // tslint:disable-next-line
-  constructor(store?: any, dispatch?: Dispatch<{}>) {
+  constructor(store?: QuerierStoreType, dispatch?: Dispatch<{}>) {
     this.store = store || {};
     this.listeners = new Map();
     this.reduxDispatch = dispatch;
@@ -23,80 +38,39 @@ export class Querier implements QuerierType {
 
   async sendQuery<TResult>(queryDescriptor: QuerierQueryDescriptor<TResult>) {
     const { query, queryKey, effects, hot, props } = queryDescriptor;
-    const possibleQueryResult = this.store[queryKey];
-    if (
-      !!!hot &&
-      possibleQueryResult &&
-      (possibleQueryResult.result ||
-        possibleQueryResult.state.state === QuerierState.Active)
-    ) {
-      this.logger.log('Serving query from cache', possibleQueryResult);
-      this.notify(queryKey);
-      return;
-    }
 
     let queryState: QuerierStoreType = {};
 
-    queryState[queryKey] = {
-      id: queryKey,
-      result: null,
+    if (this.tryServeFromCache(queryDescriptor)) {
+      return;
+    }
 
-      state: {
-        state: QuerierState.Active
-      },
-      $props: props,
-      $reason: queryDescriptor.reason || null
-    };
-
-    this.store = {
-      ...this.store,
-      ...queryState
-    };
-
-    this.notify(queryKey);
+    this.startQuery(queryKey, props, queryDescriptor.reason);
 
     try {
-      this.logger.log('Sending query', { ...queryState[queryKey] });
       const result = await query();
-      queryState[queryKey] = {
-        ...queryState[queryKey],
-        result,
-        state: {
-          state: QuerierState.Success
-        }
-      };
+      this.performQueryEffects(result, effects);
+      this.successQuery(queryKey, result);
+    } catch (e) {
+      if (e.name === 'NoDispatcherError') {
+        this.failQuery(queryKey, e);
+        return Promise.reject(e);
+      }
+      this.failQuery(queryKey, e);
+    }
+  }
 
-      this.store = {
-        ...this.store,
-        ...queryState
-      };
-
-      this.logger.log('Query succeeded', { ...queryState[queryKey] });
-
-      if (effects && this.reduxDispatch) {
-        this.logger.log('Performing query effects', { ...effects });
-        const dispatch = this.reduxDispatch;
-        effects.forEach(effect => {
-          dispatch(effect(result));
-        });
+  performQueryEffects<TResult>(result: TResult, effects?: ResultActions<TResult> | null) {
+    if (effects) {
+      if (!this.reduxDispatch) {
+        throw new NoDispatcherError();
       }
 
-      this.notify(queryKey);
-    } catch (e) {
-      queryState[queryKey] = {
-        ...queryState[queryKey],
-        result: null,
-        state: {
-          state: QuerierState.Error,
-          error: e
-        }
-      };
-      this.store = {
-        ...this.store,
-        ...queryState
-      };
-      this.logger.log('Query failed', { ...queryState[queryKey] });
-      this.notify(queryKey);
+      this.logger.log('Performing query effects', { ...effects });
+      const dispatch = this.reduxDispatch;
+      effects.forEach(effect => {
+        dispatch(effect(result));
+      });
     }
   }
 
@@ -114,10 +88,7 @@ export class Querier implements QuerierType {
   subscribe(queryKey: string, listener: Function) {
     // TODO: add typings
     const listeners = this.listeners.get(queryKey);
-    this.listeners.set(
-      queryKey,
-      listeners ? [...listeners, listener] : [listener]
-    );
+    this.listeners.set(queryKey, listeners ? [...listeners, listener] : [listener]);
 
     return () => {
       const _listeners = this.listeners.get(queryKey);
@@ -127,8 +98,76 @@ export class Querier implements QuerierType {
           ..._listeners.slice(0, index),
           ..._listeners.slice(index + 1, _listeners.length)
         ]);
+
+        const updatedListeners = this.listeners.get(queryKey);
+        if (updatedListeners && updatedListeners.length === 0) {
+          this.listeners.delete(queryKey);
+        }
       }
     };
+  }
+
+  updateQuery<TResult>(key: string, update: Partial<QuerierStateEntry<TResult>>, silent?: boolean) {
+    let queryState: QuerierStoreType = {};
+
+    queryState[key] = {
+      ...this.store[key],
+      ...update
+    };
+
+    this.store = {
+      ...this.store,
+      ...queryState
+    };
+
+    if (!silent) {
+      this.notify(key);
+    }
+  }
+
+  startQuery(key: string, props?: {}, reason?: string) {
+    this.updateQuery(key, {
+      id: key,
+      result: null,
+      state: {
+        state: QuerierState.Active
+      },
+      $props: props || null,
+      $reason: reason
+    });
+
+    this.logger.log('Query started', { ...this.store[key] });
+  }
+
+  successQuery<TResult>(key: string, result: TResult) {
+    this.updateQuery(key, {
+      result,
+      state: {
+        state: QuerierState.Success
+      }
+    });
+    this.logger.log('Query succeeded', { ...this.store[key] });
+  }
+
+  // tslint:disable-next-line
+  failQuery(key: string, error: any) {
+    this.updateQuery(key, {
+      result: null,
+      state: {
+        state: QuerierState.Error,
+        error
+      }
+    });
+
+    this.logger.log('Query failed', { ...this.store[key] });
+  }
+
+  getListeners() {
+    return this.listeners;
+  }
+
+  getListenersByKey(key: string) {
+    return this.listeners.get(key);
   }
 
   private notify(queryKey: string) {
@@ -136,5 +175,21 @@ export class Querier implements QuerierType {
     if (listeners) {
       listeners.map(listener => listener(this.store[queryKey]));
     }
+  }
+
+  private tryServeFromCache<TResult>(queryDescriptor: QuerierQueryDescriptor<TResult>) {
+    const { queryKey, hot } = queryDescriptor;
+    const possibleQueryResult = this.store[queryKey];
+    if (
+      !!!hot &&
+      possibleQueryResult &&
+      (possibleQueryResult.result || possibleQueryResult.state.state === QuerierState.Active)
+    ) {
+      this.logger.log('Serving query from cache', possibleQueryResult);
+      this.notify(queryKey);
+      return true;
+    }
+
+    return false;
   }
 }

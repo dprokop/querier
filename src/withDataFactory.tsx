@@ -139,7 +139,6 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(
           }
         };
       });
-      // console.log(props);
       return props as {
         results: InjectedResults<TInputQueries, TActionQueries>,
         states: InjectedStates<TInputQueries, TActionQueries>
@@ -188,7 +187,6 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(
         results,
         states,
       } = this.buildComponentPropsFromResults();
-
       return (
         <Component
           results={results}
