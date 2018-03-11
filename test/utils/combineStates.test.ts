@@ -2,7 +2,7 @@ import { combineStates } from '../../src/utils/combineStates';
 import { StatesType, QuerierState } from '../../src/types';
 import { QueryStateType } from '../../src';
 
-const createStateTypes = (stateTypes: Array<QuerierState>): StatesType => {
+const createStateProps = (stateTypes: Array<QuerierState>): StatesType => {
   let result = {};
   stateTypes.forEach((stateType: QuerierState, key) => {
     result[`props${key}`] = {
@@ -17,7 +17,7 @@ const createStateTypes = (stateTypes: Array<QuerierState>): StatesType => {
 describe('Utils', () => {
   describe('combineStates', () => {
     it('returns error state if any error available', () => {
-      const states: StatesType = createStateTypes([
+      const states: StatesType = createStateProps([
         QuerierState.Active,
         QuerierState.Success,
         QuerierState.Error
@@ -30,7 +30,7 @@ describe('Utils', () => {
     });
 
     it('returns active state if no error and any active state available', () => {
-      const states: StatesType = createStateTypes([
+      const states: StatesType = createStateProps([
         QuerierState.Active,
         QuerierState.Success,
         QuerierState.Success
@@ -41,7 +41,7 @@ describe('Utils', () => {
     });
 
     it('returns success state all states are success', () => {
-      const states: StatesType = createStateTypes([
+      const states: StatesType = createStateProps([
         QuerierState.Success,
         QuerierState.Success,
         QuerierState.Success
@@ -53,7 +53,7 @@ describe('Utils', () => {
     });
 
     it('returns pending state all states are pending', () => {
-      const states: StatesType = createStateTypes([
+      const states: StatesType = createStateProps([
         QuerierState.Pending,
         QuerierState.Pending,
         QuerierState.Pending
