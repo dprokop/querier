@@ -1,0 +1,47 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #222;
+  height: 60px;
+  padding: 20px;
+  color: white;
+}
+
+.App-links {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+
+}
+.App-link {
+  padding: 10px;
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.RepositoriesList-list {
+  list-style-type: none;
+  padding: 0;
+  max-width: 720px;
+  margin: 20px auto 100px auto;
+}
+
+.RepositoriesList-link {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-top: 1px dotted cyan;
+}
