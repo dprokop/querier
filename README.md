@@ -20,7 +20,7 @@ Simple declarative data layer for React applications
 ## What is Querier?
 Querier is a tool that helps you get remote and async data into React app effortlessly.
 
-With simple, declarative API, you don't have to worry about handling async state or errors. All you have to do is decorate component that requires async data using [`withData`](#withData) higher-order component. Results, states and possible errors will be injected into the component as props.
+With simple, declarative API, you don't have to worry about handling async state or errors. All you have to do is decorate component that requires async data using [`withData`](#withdata) higher-order component. Results, states and possible errors will be injected into the component as props.
 
 Querier is implemented and tested in TypeScript.
 
@@ -99,7 +99,7 @@ const repositoryDetailsQueries = {
 export default withData(repositoryDetailsQueries)(RepositoryDetails);
 ```
 
-For examples take a look into [`examples`](./examples) directory.
+For examples take a look into `examples` directory.
 ## Queries
 ---
 Queries gives you ability to get data *in* and *out* of React component. They are the most important part of Querier.
