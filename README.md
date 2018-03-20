@@ -257,8 +257,7 @@ Input and action queries are defined separately, and each query definition accep
 
 
 ## Handling query statuses
----
-When decorating your component using `withData` HOC all your queries statuses are passed to the component in `states` prop. Each query state is represented by `QueryStateType`:
+  When decorating your component using `withData` HOC all your queries statuses are passed to the component in `states` prop. Each query state is represented by `QueryStateType`:
 ```ts
 enum QuerierState {
   Pending = 0,
@@ -287,7 +286,6 @@ Having this knowledge you can start building UI abstractions over this API to di
 Also, there is a [`combineStates(states: StatesType): QueryStateType`](./src/utils/combineStates.ts) utility that will calculate derived status of multiple query states.
 
 ## Caching
----
 By default, all queries executed by Querier are cached. However, there are cases, when you want your queries to be executed every time instead of served from cache. To do so you need to declare your query as `hot` in your data dependencies definition passed to `withData` HOC:
 
 ```ts
@@ -304,11 +302,9 @@ const searchComponentQueries = {
 Querier cache is not persistent - you need to take care of this by yourself. `QuerierProvider` component accepts `querier: QuerierType` property that can be initialised using querier store that you have cached in e.g. local storage.
 
 ## Server-side rendering
----
 For SSR example please take a look at [example repository](https://github.com/dprokop/querier-ssr-example)
 
 ## API
----
 
 ### `Querier`
 `Querier(store?: QuerierStoreType, dispatch?: Dispatch<{}>)` is the core part of the tool. It's responsibility is to perform queries, cache and pass them back to components.
@@ -332,5 +328,30 @@ Makes querier available to components decorated with `withData` HOC. `QuerierPro
 
 
  ## Known limitations
- ---
-- Action queries arguments are not typed at the moment
+### Action queries arguments typings
+Action queries arguments are not typed at the moment
+
+### Anonymous query function exports in TypeScript when `module: 'commonjs'` set is problematic
+
+Query keys in Querier cache are based on query function name and params passed to the query. When using `module: 'commonjs'` Typescript turns this :
+
+`export const someQuery = () => 1`
+
+into this:
+
+```js
+exports.someQuery = function (_ref) { ...
+```
+
+`someQuery.name` will return empty string for such export, meaning, that if your component rely on multiple input queries, or multiple queries rely on the same set or props, then all off them will resolve with data stored in cache for **first query that finished execution**. This of course leads to invalid data :(
+
+To avoid this situation you can either set `module` to `esnext` or define your queries as non-anonymous functions or functions assigned to a `const` end exported later:
+
+```ts
+// This will work:
+export async function someQuery() { ... }
+
+// This will work as well:
+const someQuery = async () => ...
+export someQuery;
+```
