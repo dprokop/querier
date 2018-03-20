@@ -1,5 +1,4 @@
 // tslint:disable:no-any
-import { Action, ActionFunction1 } from 'redux-actions';
 import { ComponentClass, ComponentType } from 'react';
 
 // Diff / Omit taken from https://github.com/Microsoft/TypeScript/issues/12215#issuecomment-311923766
@@ -9,6 +8,20 @@ export type Omit<T, K extends keyof T> = Pick<T, Diff<keyof T, K>>;
 
 export type InputQuery<TProps, TResult> = (props: TProps) => Promise<TResult>;
 export type ActionQuery<TResult> = (...args: any[]) => Promise<TResult>;
+
+// Taken from redux-actions
+export interface BaseAction {
+  type: string;
+}
+
+// Taken from redux-actions
+export interface Action<Payload> extends BaseAction {
+  payload?: Payload;
+  error?: boolean;
+}
+
+// Taken from redux-actions
+export type ActionFunction1<T1, R> = (t1: T1) => R;
 
 export type ResultActions<T> = Array<ActionFunction1<T, Action<T>>>;
 
