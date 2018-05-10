@@ -1,6 +1,6 @@
 {
   "name": "querier",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Simple declarative data layer for React applications",
   "keywords": [
     "react",
@@ -89,6 +89,7 @@
     "@types/enzyme": "^3.1.9",
     "@types/invariant": "^2.2.29",
     "@types/jest": "^22.0.0",
+    "@types/js-md5": "0.4.2",
     "@types/node": "^9.3.0",
     "@types/prop-types": "^15.5.2",
     "@types/react": "^16.0.38",
@@ -132,6 +133,7 @@
   },
   "dependencies": {
     "invariant": "^2.2.3",
+    "js-md5": "0.7.3",
     "prop-types": "^15.6.0",
     "shallowequal": "1.0.2"
   }

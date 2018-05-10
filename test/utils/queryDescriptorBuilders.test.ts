@@ -50,7 +50,7 @@ describe('queryDescriptorBuilders', () => {
         inputQuery
       });
 
-      expect(queryDesciptor.inputQuery.key).toBe('testQuery');
+      expect(queryDesciptor.inputQuery.key).toBe('testQuery[44ce398bb016359ccff354315583ed5f]');
     });
 
     it('handles empty query definitions', () => {
@@ -85,7 +85,7 @@ describe('queryDescriptorBuilders', () => {
         actionQuery
       });
 
-      expect(queryDesciptor.actionQuery.key).toBe('testQuery');
+      expect(queryDesciptor.actionQuery.key).toBe('testQuery[44ce398bb016359ccff354315583ed5f]');
     });
 
     it('handles empty query definitions', () => {
