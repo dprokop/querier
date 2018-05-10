@@ -1,5 +1,6 @@
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
+import shallowequal from 'shallowequal';
 
 import { QuerierProviderContext } from './QuerierProvider';
 import {
@@ -54,9 +55,11 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(
       this.fireInputQueries(this.props);
     }
 
-    componentWillReceiveProps(nextProps: TProps) {
-      this.unsubscribeQuerier();
-      this.fireInputQueries(nextProps);
+    componentDidUpdate(prevProps: TProps) {
+      if (!shallowequal(this.props, prevProps)) {
+        this.unsubscribeQuerier();
+        this.fireInputQueries(this.props);
+      }
     }
 
     componentWillUnmount() {

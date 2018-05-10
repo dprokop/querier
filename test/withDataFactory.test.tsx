@@ -157,6 +157,37 @@ describe('withDataFactory', () => {
     expect(querySpy).toBeCalledWith({ prop1: 'wow' });
   });
 
+  it('does not execute input queries when new props are the same as previous', () => {
+    const querySpy = jest.fn();
+    const query = spiedQuery(querySpy);
+
+    const querier = new Querier();
+    const sendQuerySpy = jest.fn().mockResolvedValue('data');
+    querier.sendQuery = sendQuerySpy;
+
+    const inputQueries = mockWrappedQuery('test', query, null, false, 'queryKey');
+
+    const ComponentWithData = withDataFactory<ComponentProps, ComponentInputQueries, {}>({
+      inputQueries
+    })(Component);
+
+    const wrapper = mount(
+      <Container prop1="yay">
+        {({ prop1 }) => {
+          return (
+            <QuerierProviderMock querier={querier}>
+              <ComponentWithData prop1={prop1} />
+            </QuerierProviderMock>
+          );
+        }}
+      </Container>
+    );
+
+    wrapper.setProps({ prop1: 'yay' });
+
+    expect(sendQuerySpy.mock.calls).toHaveLength(1);
+  });
+
   it('passes results and states to component', () => {
     const query = spiedQuery();
     const inputQueries = mockWrappedQuery('test', query, null, false, 'queryKey');
