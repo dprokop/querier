@@ -44,10 +44,12 @@ export const actionQueryDescriptorsBuilder = <TActionQueries>(
       const wrappedQuery = (...args: any[]) => query(...args);
 
       let queryDescriptor: Partial<WrappedActionQueries<TActionQueries>> = {};
-
       queryDescriptor[actionQueryProp] = {
         query: wrappedQuery,
-        hot: !!actionQueries[actionQueryProp].hot,
+        hot:
+          actionQueries[actionQueryProp].hot === undefined
+            ? true
+            : !!actionQueries[actionQueryProp].hot,
         key: buildQueryKey(actionQueries[actionQueryProp].query)
       };
 
