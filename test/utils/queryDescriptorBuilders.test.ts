@@ -6,7 +6,7 @@ import {
 
 describe('queryDescriptorBuilders', () => {
   describe('inputQueryDescriptorsBuilder', () => {
-    it('auguments query hot and resultActions properties if not present in definition', () => {
+    it('auguments query hot to false and resultActions properties if not present in definition', () => {
       const inputQuery: InputQueryDefinition<{}, {}> = {
         query: async (props: {}) => {
           return {};
@@ -59,7 +59,7 @@ describe('queryDescriptorBuilders', () => {
   });
 
   describe('actionQueryDescriptorsBuilder', () => {
-    it('auguments query hot property if not present in definition', () => {
+    it('auguments query hot property to true if not present in definition', () => {
       const actionQuery = {
         query: async (props: {}) => {
           return {};
@@ -70,7 +70,7 @@ describe('queryDescriptorBuilders', () => {
         actionQuery
       });
 
-      expect(queryDesciptor.actionQuery).toHaveProperty('hot', false);
+      expect(queryDesciptor.actionQuery).toHaveProperty('hot', true);
       expect(queryDesciptor.actionQuery).not.toHaveProperty('resultActions');
     });
 

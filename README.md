@@ -286,7 +286,7 @@ Having this knowledge you can start building UI abstractions over this API to di
 Also, there is a [`combineStates(states: StatesType): QueryStateType`](./src/utils/combineStates.ts) utility that will calculate derived status of multiple query states.
 
 ## Caching
-By default, all queries executed by Querier are cached. However, there are cases, when you want your queries to be executed every time instead of served from cache. To do so you need to declare your query as `hot` in your data dependencies definition passed to `withData` HOC:
+By default, all **input** queries executed by Querier are cached. However, there are cases, when you want your queries to be executed every time instead of served from cache. To do so you need to declare your query as `hot` in your data dependencies definition passed to `withData` HOC:
 
 ```ts
 const searchComponentQueries = {
@@ -298,6 +298,8 @@ const searchComponentQueries = {
   }
 }
 ```
+
+For action queriers set `hot: false` to make them cacheable.
 
 Querier cache is not persistent - you need to take care of this by yourself. `QuerierProvider` component accepts `querier: QuerierType` property that can be initialised using querier store that you have cached in e.g. local storage.
 
