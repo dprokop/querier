@@ -7,9 +7,9 @@ import {
   QuerierStoreType,
   QuerierType,
   QueryStateType,
-  QuerierStateEntry
+  QuerierStateEntry,
+  ResultActions
 } from './types';
-import { ResultActions } from '.';
 
 export class NoDispatcherError extends Error {
   constructor() {
