@@ -252,6 +252,35 @@ describe('withDataFactory', () => {
 
   });
 
+  it('passes input queries executors to component', async () => {
+    const querySpy = jest.fn();
+    const query = spiedQuery(querySpy);
+    const inputQueries = mockWrappedQuery('inputQueryTest', query, null, false, 'queryKey');
+
+    const ComponentWithData = withDataFactory<ComponentProps, {}, ComponentActionQueries>({
+      inputQueries: {
+        inputQueryTest: {
+          query,
+          resultActions: null,
+          hot: false,
+          key: ''
+        }
+      }
+    })(Component);
+
+    const wrapper = mount(
+      <QuerierProviderMock querier={new Querier()}>
+        <ComponentWithData prop1="yay" />
+      </QuerierProviderMock>
+    );
+
+    expect(querySpy).toBeCalled();
+    expect(wrapper.find(Component).props().inputQueries).toHaveProperty('inputQueryTest');
+    // tslint:disable-next-line
+    expect(wrapper.find(Component).props().inputQueries['inputQueryTest']).toHaveProperty('fire');
+
+  });
+
   it('handles pure function components', () => {
     const querySpy = jest.fn();
     const renderSpy = jest.fn();
