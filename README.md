@@ -140,6 +140,15 @@ const repositoryDetailsQueries = {
 // Second, use withData HOC
 export default withData(repositoryDetailsQueries)(YourComponent);
 ```
+
+#### Input queries executors - manually invoking input queries
+
+Input queries are automatically invoked when component's props change. However, in some cases there is a need to re-invoke input query for the same set of props. To do so, each query is passed to the component in `inputQueries` property, that contain each query's executor. In the case of the example above, the executor  for `repository` input query is accessible by:
+
+```js
+this.props.inputQueries.repository.fire()
+```
+
 #### Input queries key notes
 - Input queries are fired when component mounts
 - **Input queries always receive component's full set of props** as argument
