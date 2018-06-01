@@ -1,21 +1,22 @@
-import { StatesType, QuerierState, QueryStateType } from '../types';
+import { InjectedStates, QuerierState, QueryStateType } from '../types';
 
-export const combineStates = (states: StatesType): QueryStateType => {
+export const combineStates = (states: InjectedStates<any, any>): QueryStateType => {
   let successes = 0;
   let active = 0;
 
   for (let key in states) {
     if (key && states[key]) {
-      if (states[key].state === QuerierState.Active) {
+      const state = states[key];
+      if (state && state.state === QuerierState.Active) {
         active++;
       }
-      if (states[key].state === QuerierState.Error) {
+      if (state && state.state === QuerierState.Error) {
         return {
           state: QuerierState.Error,
-          error: states[key].error
+          error: state.error
         };
       }
-      if (states[key].state === QuerierState.Success) {
+      if (state && state.state === QuerierState.Success) {
         successes++;
       }
     }

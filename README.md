@@ -256,12 +256,14 @@ Input and action queries are defined separately, and each query definition accep
 {
   query: InputQuery<TProps, TQueryResult> | ActionQuery<TQueryResult>;
   hot?: boolean;
+  lazy?: boolean; // input queries only
   resultActions?: ResultActions<TQueryResult>;
 }
 ```
 
 #### Query defintion options
 - `hot?: boolean` - when set to `true` makes the query not cacheable. See [Caching](#caching) for more information
+- `lazy?: boolean` - *Input queries only*. When set to `true`, input query will not be fired on mount
 - `resultActions?: Array<ActionFunction1<TQueryResult, Action<TQueryResult>>>` - array of Redux action creators. When defined, these actions will be performed when query succeedes. Use it e.g. when you want to store your query result in Redux store.
 
 

@@ -33,13 +33,13 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
       static contextTypes = {
         querier: PropTypes.object
       };
+
       private hasMounted: boolean = false;
-
-      context: QuerierProviderContext;
-
       private querierSubscriptions: Array<() => void> = [];
       private propsToQueryKeysMap: Map<string, string> = new Map();
       private executors: InputQueriesProps<TInputQueries>;
+
+      context: QuerierProviderContext;
 
       constructor(props: TProps, context: QuerierProviderContext) {
         super(props, context);
@@ -64,7 +64,7 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
         if (!shallowequal(this.props, prevProps)) {
           this.unsubscribeQuerier();
           this.initializeInputQueriesExecutors();
-          this.fireInputQueries();
+          this.fireInputQueries(true);
         }
       }
 
@@ -86,10 +86,12 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
         }
       }
 
-      fireInputQueries() {
+      fireInputQueries(includeLazy?: boolean) {
         for (const executor in this.executors) {
           if (executor) {
-            this.executors[executor].fire();
+            if (!this.executors[executor].isLazy || (this.executors[executor].isLazy && includeLazy)) {
+              this.executors[executor].fire();
+            }
           }
         }
       }
@@ -178,7 +180,7 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
         return wrappedActionQueries as ActionQueriesProps<TActionQueries>;
       }
 
-      initializeInputQueriesExecutors() {
+      initializeInputQueriesExecutors(includeLazy?: boolean) {
         const { querier } = this.context;
         const { inputQueries } = queries;
 
@@ -192,10 +194,11 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
 
               this.querierSubscriptions.push(querier.subscribe(queryKey, this.handleQuerierUpdate));
               const executor: {
-                [key: string]: InputQueryExecutor
+                [key: string]: InputQueryExecutor;
               } = {};
 
               executor[prop] = {
+                isLazy: inputQueries[prop].lazy,
                 fire: (() => {
                   querier.sendQuery({
                     query,
