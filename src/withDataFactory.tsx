@@ -12,7 +12,8 @@ import {
   WrappedActionQueries,
   WrappedInputQueries,
   InferableComponentEnhancer,
-  InputQueriesProps
+  InputQueriesProps,
+  InputQueryExecutor
 } from './types';
 import invariant from 'invariant';
 
@@ -29,21 +30,23 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
 ) => {
     class WithData extends React.Component<TProps> {
       static displayName = `WithData(${getComponentDisplayName(Component)})`;
-
       static contextTypes = {
         querier: PropTypes.object
       };
+      private hasMounted: boolean = false;
 
       context: QuerierProviderContext;
 
       private querierSubscriptions: Array<() => void> = [];
       private propsToQueryKeysMap: Map<string, string> = new Map();
+      private executors: InputQueriesProps<TInputQueries>;
 
       constructor(props: TProps, context: QuerierProviderContext) {
         super(props, context);
         this.handleQuerierUpdate = this.handleQuerierUpdate.bind(this);
-        this.getInputQueriesExecutors = this.getInputQueriesExecutors.bind(this);
+        this.initializeInputQueriesExecutors = this.initializeInputQueriesExecutors.bind(this);
         this.initializePropsToQueryKeysMap();
+        this.initializeInputQueriesExecutors();
 
         invariant(
           context.querier,
@@ -54,17 +57,20 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
 
       componentDidMount() {
         this.fireInputQueries();
+        this.hasMounted = true;
       }
 
       componentDidUpdate(prevProps: TProps) {
         if (!shallowequal(this.props, prevProps)) {
           this.unsubscribeQuerier();
+          this.initializeInputQueriesExecutors();
           this.fireInputQueries();
         }
       }
 
       componentWillUnmount() {
         this.unsubscribeQuerier();
+        this.hasMounted = false;
       }
 
       initializePropsToQueryKeysMap() {
@@ -81,10 +87,9 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
       }
 
       fireInputQueries() {
-        const executors = this.getInputQueriesExecutors();
-        for (const executor in executors) {
+        for (const executor in this.executors) {
           if (executor) {
-            executors[executor].fire();
+            this.executors[executor].fire();
           }
         }
       }
@@ -96,7 +101,9 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
       }
 
       handleQuerierUpdate(queryData: QuerierStateEntry<{}>) {
-        this.setState({});
+        if (this.hasMounted) {
+          this.setState({});
+        }
       }
 
       buildComponentPropsFromResults() {
@@ -171,7 +178,7 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
         return wrappedActionQueries as ActionQueriesProps<TActionQueries>;
       }
 
-      getInputQueriesExecutors() {
+      initializeInputQueriesExecutors() {
         const { querier } = this.context;
         const { inputQueries } = queries;
 
@@ -181,15 +188,13 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
             if (prop) {
               const query = () => inputQueries[prop].query(this.props);
               const queryKey = `${inputQueries[prop].key}:${JSON.stringify(this.props)}`;
-
               this.propsToQueryKeysMap.set(prop, queryKey);
 
               this.querierSubscriptions.push(querier.subscribe(queryKey, this.handleQuerierUpdate));
               const executor: {
-                [key: string]: {
-                  fire: () => void;
-                }
+                [key: string]: InputQueryExecutor
               } = {};
+
               executor[prop] = {
                 fire: (() => {
                   querier.sendQuery({
@@ -211,7 +216,7 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
           }
         }
 
-        return executors as InputQueriesProps<TInputQueries>;
+        this.executors = executors as InputQueriesProps<TInputQueries>;
       }
 
       render() {
@@ -220,7 +225,7 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
           <Component
             results={results}
             actionQueries={this.getWrappedActionQueries()}
-            inputQueries={this.getInputQueriesExecutors()}
+            inputQueries={this.executors}
             states={states}
             {...this.props}
           />

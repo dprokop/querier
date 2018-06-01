@@ -77,14 +77,19 @@ export type InputQueriesProps<TInputQueries> = {
     fire: () => void;
   }
 };
+
 export type ActionQueriesProps<TActionQueries> = {
   [TProp in keyof TActionQueries]: (...args: any[]) => Promise<TActionQueries[TProp]>
 };
 
 export type InjectedStates<TInputQueries, TActionQueries> = {
-  [P in keyof TActionQueries]: QueryStateType
+  [P in keyof TActionQueries]: QueryStateType | null
 } &
-  { [P in keyof TInputQueries]: QueryStateType };
+  { [P in keyof TInputQueries]: QueryStateType | null };
+
+export type InputQueryExecutor = {
+  fire: () => void;
+};
 
 export type InjectedResults<TInputQueries, TActionQueries> = InputQueriesResults<TInputQueries> &
   InputQueriesResults<TActionQueries>;
