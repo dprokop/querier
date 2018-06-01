@@ -29,6 +29,7 @@ export type InputQueryDefinition<TProps, TResult> = {
   query: InputQuery<TProps, TResult>;
   resultActions?: ResultActions<TResult>;
   hot?: boolean;
+  lazy?: boolean;
   $result?: TResult;
 };
 
@@ -55,6 +56,7 @@ export type WrappedInputQueries<TProps, TInputQueries> = {
     query: InputQuery<TProps, TInputQueries[TProp]>;
     resultActions: ResultActions<TInputQueries[TProp]> | null;
     hot: boolean;
+    lazy: boolean;
     key: string;
   }
 };
@@ -74,6 +76,7 @@ export type InputQueriesResults<TInputQueries> = {
 
 export type InputQueriesProps<TInputQueries> = {
   [TProp in keyof TInputQueries]: {
+    isLazy?: boolean;
     fire: () => void;
   }
 };
@@ -88,6 +91,7 @@ export type InjectedStates<TInputQueries, TActionQueries> = {
   { [P in keyof TInputQueries]: QueryStateType | null };
 
 export type InputQueryExecutor = {
+  isLazy: boolean;
   fire: () => void;
 };
 

@@ -42,13 +42,14 @@ const spiedQuery = (spy?: Function) => {
   };
 };
 
-const mockWrappedQuery = (name, query, resultActions, hot, key) => {
+const mockWrappedQuery = (name, query, resultActions, hot, key, lazy = false) => {
   const wrappedQueryMock = {};
   wrappedQueryMock[name] = {
     query,
     resultActions,
     hot,
-    key
+    key,
+    lazy
   };
 
   return wrappedQueryMock as WrappedInputQueries<ComponentProps, ComponentInputQueries>;
@@ -104,6 +105,25 @@ describe('withDataFactory', () => {
 
     expect(querySpy).toBeCalled();
     expect(querySpy.mock.calls).toHaveLength(1);
+  });
+
+  it('does not execute lazy input queries on mount', () => {
+    const querySpy = jest.fn();
+    const query = spiedQuery(querySpy);
+    const inputQueries = mockWrappedQuery('test', query, null, false, 'queryKey', true);
+
+    const ComponentWithData = withDataFactory<ComponentProps, ComponentInputQueries, {}>({
+      inputQueries
+    })(Component);
+
+    const wrapper = mount(
+      <QuerierProviderMock querier={new Querier()}>
+        <ComponentWithData />
+      </QuerierProviderMock>
+    );
+
+    expect(querySpy).not.toBeCalled();
+    expect(querySpy.mock.calls).toHaveLength(0);
   });
 
   it('passes component props to input query', () => {

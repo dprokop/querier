@@ -22,6 +22,7 @@ export const inputQueryDescriptorsBuilder = <TProps, TInputQueries>(
       wrappedQueryDescriptor[inputQueryProp] = {
         query: wrappedQuery,
         hot: !!inputQueries[inputQueryProp].hot,
+        lazy: !!inputQueries[inputQueryProp].lazy,
         resultActions: inputQueries[inputQueryProp].resultActions || null,
         key: queryKey
       };
