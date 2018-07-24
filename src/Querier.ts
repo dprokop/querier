@@ -6,7 +6,6 @@ import {
   QuerierState,
   QuerierStoreType,
   QuerierType,
-  QueryStateType,
   QuerierStateEntry,
   ResultActions
 } from './types';

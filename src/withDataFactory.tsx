@@ -56,13 +56,15 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
       }
 
       componentDidMount() {
-        this.fireInputQueries();
         this.hasMounted = true;
+        this.fireInputQueries();
       }
 
       componentDidUpdate(prevProps: TProps) {
+
         if (!shallowequal(this.props, prevProps)) {
           this.unsubscribeQuerier();
+          this.initializePropsToQueryKeysMap();
           this.initializeInputQueriesExecutors();
           this.fireInputQueries(true);
         }
@@ -113,6 +115,7 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
           results: {},
           states: {}
         };
+
         this.propsToQueryKeysMap.forEach((queryKey, prop) => {
           const queryStoreEntry = this.context.querier.getEntry(queryKey);
           const result: {
