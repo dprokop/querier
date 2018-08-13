@@ -38,6 +38,7 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
       private querierSubscriptions: Array<() => void> = [];
       private propsToQueryKeysMap: Map<string, string> = new Map();
       private executors: InputQueriesProps<TInputQueries>;
+      private wrappedActonQueries: ActionQueriesProps<TActionQueries>;
 
       context: QuerierProviderContext;
 
@@ -47,6 +48,7 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
         this.initializeInputQueriesExecutors = this.initializeInputQueriesExecutors.bind(this);
         this.initializePropsToQueryKeysMap();
         this.initializeInputQueriesExecutors();
+        this.wrappedActonQueries = this.buildWrappedActionQueries();
 
         invariant(
           context.querier,
@@ -145,6 +147,10 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
       }
 
       getWrappedActionQueries() {
+        return this.wrappedActonQueries;
+      }
+
+      buildWrappedActionQueries() {
         const { actionQueries } = queries;
         const { querier } = this.context;
         let wrappedActionQueries = {};
