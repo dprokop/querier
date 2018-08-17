@@ -168,8 +168,8 @@ export const withDataFactory = <TProps, TInputQueries, TActionQueries>(queries: 
                   actionQueryParams
                 )}`;
                 this.propsToQueryKeysMap.set(actionQueryProp, queryKey);
+                this.querierSubscriptions.push(querier.subscribe(queryKey, this.handleQuerierUpdate));
 
-                querier.subscribe(queryKey, this.handleQuerierUpdate);
                 querier.sendQuery({
                   query,
                   queryKey,
