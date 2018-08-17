@@ -88,7 +88,6 @@ export class Querier implements QuerierType {
     // TODO: add typings
     const listeners = this.listeners.get(queryKey);
     this.listeners.set(queryKey, listeners ? [...listeners, listener] : [listener]);
-
     return () => {
       const _listeners = this.listeners.get(queryKey);
       if (_listeners) {
@@ -185,7 +184,11 @@ export class Querier implements QuerierType {
       (possibleQueryResult.result || possibleQueryResult.state.state === QuerierState.Active)
     ) {
       this.logger.log('Serving query from cache', possibleQueryResult);
-      this.notify(queryKey);
+
+      // Schedule notification to next frame, to allow component that requested the data to mount
+      window.requestAnimationFrame(() => {
+        this.notify(queryKey);
+      });
       return true;
     }
 

@@ -161,7 +161,7 @@ describe('Querier', () => {
         };
       });
 
-      it('serves from cache if query result is available', async () => {
+      it('serves from cache if query result is available', done => {
         const store: QuerierStoreType = createStoreMock();
 
         const querier = new Querier(store);
@@ -174,11 +174,16 @@ describe('Querier', () => {
           queryKey: queryKey
         });
 
-        expect(querySpy).not.toBeCalled();
-        expect(listenerSpy).toBeCalledWith(store[queryKey]);
+        // We expect notification from Querier to be fired. It is fired using rAF,
+        // so we need to delay expects to next frame
+        setTimeout(() => {
+          expect(querySpy).not.toBeCalled();
+          expect(listenerSpy).toBeCalledWith(store[queryKey]);
+          done();
+        }, 0);
       });
 
-      it('serves from cache if query is active', () => {
+      it('serves from cache if query is active', done => {
         const store: QuerierStoreType = createStoreMock({ state: QuerierState.Active });
 
         const querier = new Querier(store);
@@ -192,8 +197,13 @@ describe('Querier', () => {
           queryKey: queryKey
         });
 
-        expect(querySpy).not.toBeCalled();
-        expect(listenerSpy).toBeCalledWith(store[queryKey]);
+        // We expect notification from Querier to be fired. It is fired using rAF,
+        // so we need to delay expects to next frame
+        setTimeout(() => {
+          expect(querySpy).not.toBeCalled();
+          expect(listenerSpy).toBeCalledWith(store[queryKey]);
+          done();
+        }, 0);
       });
 
       it('ignores cache if query is set to hot', async () => {
